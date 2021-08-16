@@ -110,7 +110,7 @@ TRUE="true"
 FALSE="false"
 VALID_RAW_REPO_TYPES=( "docs" "downloads" )
 VALID_PROJECTS=( "idv" "ldm" "netcdf-c" "netcdf-cxx" "netcdf-fortran"
-                 "netcdf-java" "rosetta" "ncml" "tds" "udunits" )
+                 "netcdf-java" "rosetta" "ncml" "tds" "udunits" "awips2" )
 
 # Validate variable against a set of known valid values based on the variable name
 #
