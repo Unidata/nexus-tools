@@ -17,7 +17,7 @@ help() {
   cat <<EOM
 
 Usage:
-  $(basename "$0") -t <docs|downloads> -u USERNAME -o PROJECT_NAME -v PROJECT_VERSION [-p PASSWORD] [-nhf] file...
+  $(basename "$0") -t <docs|downloads> -u USERNAME -o PROJECT_NAME -v PROJECT_VERSION [-p PASSWORD] [-c NEW_FILENAME] [-nhf] file...
 
 Description:
   $(basename "$0") - upload one or more files to the Unidata Nexus artifacts server.
@@ -74,6 +74,17 @@ Description:
     https://artifacts.unidata.ucar.edu/repository/docs-project/1.2.3/tarball-2.tar.bz2
     https://artifacts.unidata.ucar.edu/repository/docs-project/1.2.3/tarball-3tar.bz2
 
+  If you would like the name of the file on the nexus artifacts server to be different than the local
+  file you are uploading, use the change filename flag (-c).
+
+  For example, the command:
+
+    $(basename "$0") -t downloads -u username -o project -v 1.2.3 -c newFile.txt file.txt
+
+  will create the following file on the nexus artifacts server:
+
+    https://artifacts.unidata.ucar.edu/repository/docs-project/1.2.3/newFile.txt 
+
   To upload the entire contents of a directory, pair this script with the find command using and pipe.
   For example, to upload every file found under the ./docs/ directory, use the command:
 
@@ -91,6 +102,7 @@ Optional flags:
       echo upload command, but do not execute
   -f: use filename only
       do not preserve local path in the server side path
+  -c: change the filename on the server side
   -h: help
       display this help message
 
@@ -146,8 +158,9 @@ RAW_REPO_TYPE=
 VERSION=
 DRYRUN="${FALSE}"
 FILEONLY="${FALSE}"
+NEW_FILENAME=
 
-while getopts "u:o:t:v:p::nfh" FLAG; do
+while getopts "u:o:t:v:p::c:fnh" FLAG; do
   case "$FLAG" in
   u)
      USERNAME="$OPTARG"
@@ -169,6 +182,9 @@ while getopts "u:o:t:v:p::nfh" FLAG; do
      ;;
   f)
      FILEONLY="${TRUE}"
+     ;;
+  c)
+     NEW_FILENAME="$OPTARG"
      ;;
   h)
      help
@@ -204,14 +220,22 @@ fi
 for F in ${EXPRESSION[@]}; do
   if [[ -f "$F" ]]; then
     if [[ "${FILEONLY}" = "${TRUE}" ]];then
-      SERVER_FILENAME=$(basename "${F}")
-    else
-      if [[ ${F} = /* ]]; then
-        SERVER_FILENAME="${F:1}"
-      elif [[ ${F} = ./* ]]; then
-        SERVER_FILENAME="${F:2}"
+      if [[ "${NEW_FILENAME}" != "" ]];then
+        SERVER_FILENAME=$(basename "${NEW_FILENAME}")
       else
-        SERVER_FILENAME="${F}"
+        SERVER_FILENAME=$(basename "${F}")
+      fi
+    else
+      if [[ "${NEW_FILENAME}" != "" ]];then
+        SERVER_FILENAME="${NEW_FILENAME}"
+      else
+        if [[ ${F} = /* ]]; then
+          SERVER_FILENAME="${F:1}"
+        elif [[ ${F} = ./* ]]; then
+          SERVER_FILENAME="${F:2}"
+        else
+          SERVER_FILENAME="${F}"
+        fi
       fi
     fi
     echo "Uploading ${F}"
