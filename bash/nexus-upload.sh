@@ -102,7 +102,7 @@ Optional flags:
       echo upload command, but do not execute
   -f: use filename only
       do not preserve local path in the server side path
-  -c: change the filename on the server side
+  -c: change the filename on the server side (incompatible when uploading multiple files)
   -h: help
       display this help message
 
@@ -208,6 +208,11 @@ if [[ -p /dev/stdin ]]; then
 else
   # input as a list of files as arguments
   EXPRESSION="$*"
+fi
+
+if [[ $# > 1 ]] && [[ ${NEW_FILENAME} != "" ]]; then
+  echo "Cannot use the change filename (-c flag) with multiple file uploads" 
+  exit 1
 fi
 
 REPO="https://artifacts.unidata.ucar.edu/repository/${RAW_REPO_TYPE}-${PROJECT}"
