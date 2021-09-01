@@ -244,7 +244,7 @@ for F in ${EXPRESSION[@]}; do
       fi
     fi
     echo "Uploading ${F}"
-    URL="${REPO}/${VERSION}/${SERVER_FILENAME}"
+    URL="${REPO}/${PROJECT}/${VERSION}/${SERVER_FILENAME}"
     CURL_COMMAND="curl -w httpcode=%{http_code}"
     UPLOAD_OPT="--upload-file "${F}" "${URL}""
     if [[ ${DRYRUN} = "${TRUE}" ]]; then
